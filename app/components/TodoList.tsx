@@ -2,12 +2,14 @@
 
 import { useState, KeyboardEvent, useRef, useEffect } from "react";
 import { Todo } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
 
 const STORAGE_KEY = "todos";
 
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState("");
+  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const inputRef = useRef<HTMLInputElement>(null);
   const todoRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -84,65 +86,132 @@ export default function TodoList() {
     }
   };
 
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === "active") return !todo.completed;
+    if (filter === "completed") return todo.completed;
+    return true;
+  });
+
   return (
-    <div>
-      <div className="flex gap-2 mb-4">
+    <div className="w-full">
+      <div className="flex w-full gap-2 mb-4">
         <input
           ref={inputRef}
           type="text"
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 px-4 py-2 border rounded"
+          className="flex-1 px-4 py-2 border rounded text-base"
           placeholder="新しいタスクを入力"
         />
-        <button
+        <motion.button
           onClick={addTodo}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0 text-base"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           追加
-        </button>
+        </motion.button>
       </div>
 
-      <ul className="space-y-2">
-        {todos.map((todo, index) => (
-          <li
-            key={todo.id}
-            className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50"
-          >
-            <div
-              ref={setTodoRef(index)}
-              role="checkbox"
-              tabIndex={0}
-              aria-checked={todo.completed}
-              className="flex items-center flex-1 cursor-pointer"
-              onClick={() => toggleTodo(todo.id)}
-              onKeyDown={(e) => handleItemKeyDown(e, todo.id, index)}
+      <div className="flex flex-wrap w-full gap-2 mb-4">
+        <motion.button
+          onClick={() => setFilter("all")}
+          className={`px-3 py-1 rounded text-sm ${
+            filter === "all"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          すべて
+        </motion.button>
+        <motion.button
+          onClick={() => setFilter("active")}
+          className={`px-3 py-1 rounded text-sm ${
+            filter === "active"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          未完了
+        </motion.button>
+        <motion.button
+          onClick={() => setFilter("completed")}
+          className={`px-3 py-1 rounded text-sm ${
+            filter === "completed"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          完了済み
+        </motion.button>
+      </div>
+
+      <ul className="w-full space-y-2 list-none p-0">
+        <AnimatePresence>
+          {filteredTodos.map((todo, index) => (
+            <motion.li
+              key={todo.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 w-full"
+              layout
             >
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => toggleTodo(todo.id)}
-                className="mr-2"
-                tabIndex={-1}
-                aria-hidden="true"
-              />
-              <span className={todo.completed ? "line-through" : ""}>
-                {todo.text}
-              </span>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteTodo(todo.id, index);
-              }}
-              className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-              aria-label={`${todo.text}を削除`}
-            >
-              削除
-            </button>
-          </li>
-        ))}
+              <div
+                ref={setTodoRef(index)}
+                role="checkbox"
+                tabIndex={0}
+                aria-checked={todo.completed}
+                className="flex items-center flex-1 cursor-pointer"
+                onClick={() => toggleTodo(todo.id)}
+                onKeyDown={(e) => handleItemKeyDown(e, todo.id, index)}
+              >
+                <motion.input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleTodo(todo.id)}
+                  className="mr-2 h-4 w-4"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  whileHover={{ scale: 1.2 }}
+                />
+                <motion.span
+                  className={`text-base ${
+                    todo.completed
+                      ? "line-through text-gray-400"
+                      : "text-gray-900"
+                  }`}
+                  animate={{
+                    color: todo.completed ? "#9CA3AF" : "#000000",
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {todo.text}
+                </motion.span>
+              </div>
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteTodo(todo.id, index);
+                }}
+                className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm flex-shrink-0"
+                aria-label={`${todo.text}を削除`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                削除
+              </motion.button>
+            </motion.li>
+          ))}
+        </AnimatePresence>
       </ul>
     </div>
   );
