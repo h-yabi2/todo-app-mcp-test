@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 機能説明
+
+この Todo アプリケーションには以下の機能があります：
+
+- タスクの追加
+- タスクの編集
+- タスクの削除
+- タスクの完了状態の切り替え
+- タスクのフィルタリング（すべて、未完了、完了）
