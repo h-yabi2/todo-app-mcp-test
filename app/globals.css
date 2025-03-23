@@ -38,8 +38,28 @@ body {
   );
 }
 
-* {
-  margin: 0;
-  padding: 0;
+/* 一部のリセットのみ保持し、Tailwindと共存できるようにする */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+/* ブラウザのデフォルトスタイルを残しつつ、特定のものだけリセット */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-top: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+ul {
+  padding-left: 0;
 }
